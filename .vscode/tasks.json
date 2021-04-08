@@ -1,0 +1,53 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/nuget-host.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/nuget-host.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "launch-dotnet",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "${workspaceFolder}/bin/Debug/netcoreapp2.0/nuget-host.dll"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "bin/Debug/netcoreapp2.0/nuget-host.dll",
+                "/property:GenerateFullPaths=true"
+            ],
+            "options": {
+                "env": {
+                    "ASPNETCORE_ENV": "Development"
+                }
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
