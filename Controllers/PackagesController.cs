@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NuGet.Packaging;
@@ -12,21 +14,29 @@ namespace nuget_host.Controllers
     public class PackagesController : Controller
     {
         private ILogger<PackagesController> logger;
+        private IDataProtector protector;
 
-        public PackagesController(ILoggerFactory loggerFactory)
+        public PackagesController(ILoggerFactory loggerFactory, IDataProtectionProvider provider)
         {
             logger = loggerFactory.CreateLogger<PackagesController>();
-
+            protector = provider.CreateProtector("Packages.v1");
         }
 
         [HttpPut("packages/{*spec}")]
         public IActionResult Put(string spec)
         {
             string path = null;
+            
             if (string.IsNullOrEmpty(spec))
             {
                 var clientVersionId = Request.Headers["X-NuGet-Client-Version"];
+                var apiKey = Request.Headers["X-NuGet-ApiKey"];
                 ViewData["nuget client "] = "nuget {clientVersionId}";
+                
+                var clearkey = protector.Unprotect(apiKey);
+                if (clearkey!= Startup.RootApiKeySecret)
+                    return Unauthorized();
+
                 foreach (var file in Request.Form.Files)
                 {
                     string initpath = "package.nupkg";
@@ -108,6 +118,13 @@ namespace nuget_host.Controllers
                 ViewData["lst"] = lst.Select(entry => entry.Name);
             }
             return Ok(ViewData);
+        }
+
+        [Authorize]
+        [HttpGet("api/get-key/{*apikey}")]
+        public IActionResult GetApiKey(string apiKey)
+        {
+            return Ok(protector.Protect(apiKey));
         }
     }
 }
