@@ -34,12 +34,21 @@ namespace nuget_host
 
                 // if you are using API resources, you can specify the name here
                 options.Audience = "packages";
-                
-            });
 
+            });
             services.AddMvc();
 
             services.AddDataProtection();
+
+            services.AddIdentityServer()
+    .AddInMemoryClients(Config.Clients)
+    .AddInMemoryIdentityResources(Config.IdentityResources)
+    .AddInMemoryApiResources(Config.ApiResources)
+    .AddDeveloperSigningCredential()
+    .AddTestUsers(Config.TestUsers);
+
+            
+
 
         }
 
@@ -48,13 +57,12 @@ namespace nuget_host
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+               app.UseDeveloperExceptionPage();
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
             ExternalUrl = Configuration["NuGet:ExternalUrl"];
             SourceDir = Configuration["NuGet:SourceDir"];
             RootApiKeySecret = Configuration["RootApiKeySecret"];

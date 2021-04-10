@@ -1,16 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>85fd766d-5d23-4476-aed1-463b2942e86a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="2.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="1.0.0-alpha2-final" />
-
     <PackageReference Include="NuGet.Packaging.Core" Version="5.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
+    
+    <PackageReference Include="IdentityServer4" Version="2.5.4" />
+    
+    <PackageReference Include="MailKit" Version="2.11.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.5" />
+
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="2.0.5" />
+
+
   </ItemGroup>
 
   <ItemGroup>
