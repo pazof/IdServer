@@ -3,6 +3,7 @@
 
 
 using System.Collections.Generic;
+using IdentityServer4.Models;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -13,5 +14,11 @@ namespace IdentityServerHost.Quickstart.UI
         public bool RememberConsent { get; set; }
         public string ReturnUrl { get; set; }
         public string Description { get; set; }
+        public string ClientName { get; internal set; }
+        public string ClientUri { get; internal set; }
+        public string LogoUri { get; internal set; }
+        public bool AllowRememberConsent { get; internal set; }
+        public ValidatedResources ValidatedResources { get; internal set; }
+        public Client Client { get; internal set; }
     }
 }

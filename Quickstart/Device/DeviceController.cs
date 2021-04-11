@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityModel.Client;
 using IdentityServer4.Configuration;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using nuget_host.OAuth;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -131,7 +133,7 @@ namespace IdentityServerHost.Quickstart.UI
 
                 // indicate that's it ok to redirect back to authorization endpoint
                 result.RedirectUri = model.ReturnUrl;
-                result.Client = request.Client;
+                result.Client = model.Client;
             }
             else
             {
@@ -153,7 +155,9 @@ namespace IdentityServerHost.Quickstart.UI
             return null;
         }
 
-        private DeviceAuthorizationViewModel CreateConsentViewModel(string userCode, DeviceAuthorizationInputModel model, DeviceFlowAuthorizationRequest request)
+        private DeviceAuthorizationViewModel CreateConsentViewModel(
+            string userCode, DeviceAuthorizationInputModel model, 
+            DeviceFlowAuthorizationRequest request)
         {
             var vm = new DeviceAuthorizationViewModel
             {
@@ -163,31 +167,51 @@ namespace IdentityServerHost.Quickstart.UI
                 RememberConsent = model?.RememberConsent ?? true,
                 ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
 
-                ClientName = request.Client.ClientName ?? request.Client.ClientId,
-                ClientUrl = request.Client.ClientUri,
-                ClientLogoUrl = request.Client.LogoUri,
-                AllowRememberConsent = request.Client.AllowRememberConsent
+                ClientName = model?.ClientName,
+                ClientUrl = model?.ClientUri,
+                ClientLogoUrl = model?.LogoUri,
+                AllowRememberConsent = model != null && model.AllowRememberConsent
             };
 
-            vm.IdentityScopes = request.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            vm.IdentityScopes = model.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
 
             var apiScopes = new List<ScopeViewModel>();
-            foreach (var parsedScope in request.ValidatedResources.ParsedScopes)
+            foreach (var parsedScope in model.ValidatedResources.ParsedScopes.Scopes)
             {
-                var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
+                var apiScope = model.ValidatedResources.Resources.FindApiScope(parsedScope);
                 if (apiScope != null)
                 {
-                    var scopeVm = CreateScopeViewModel(parsedScope, apiScope, vm.ScopesConsented.Contains(parsedScope.RawValue) || model == null);
+                    var vreq = CreateValidatedRequest(request, apiScope);
+
+                    var scopeVm = CreateScopeViewModel(apiScope,vreq);
                     apiScopes.Add(scopeVm);
                 }
             }
-            if (ConsentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
+            if (ConsentOptions.EnableOfflineAccess && model.ValidatedResources.Resources.OfflineAccess)
             {
                 apiScopes.Add(GetOfflineAccessScope(vm.ScopesConsented.Contains(IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null));
             }
             vm.ApiScopes = apiScopes;
 
             return vm;
+        }
+
+        private ValidatedAuthorizeRequest CreateValidatedRequest(DeviceFlowAuthorizationRequest request, Scope apiScope)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ScopeViewModel CreateScopeViewModel(Scope scope, ValidatedAuthorizeRequest req)
+        {
+            return new ScopeViewModel
+            {
+                Value = scope.Name,
+                DisplayName = scope.DisplayName ?? scope.Name,
+                Description = scope.Description,
+                Emphasize = scope.Emphasize,
+                Required = scope.Required,
+                Checked = req.Client != null
+            };
         }
 
         private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
@@ -203,15 +227,15 @@ namespace IdentityServerHost.Quickstart.UI
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
+        public ScopeViewModel CreateScopeViewModel(ParsedScopes parsedScopeValue, Scope apiScope, bool check)
         {
             return new ScopeViewModel
             {
                 Value = parsedScopeValue.RawValue,
                 // todo: use the parsed scope value in the display?
-                DisplayName = apiScope.DisplayName ?? apiScope.Name,
+                DisplayName = apiScope.DisplayName,
                 Description = apiScope.Description,
-                Emphasize = apiScope.Emphasize,
+                Emphasize = parsedScopeValue.Emphasize,
                 Required = apiScope.Required,
                 Checked = check || apiScope.Required
             };

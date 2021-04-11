@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System;
-
+using IdentityServer4.Models;
 namespace IdentityServerHost.Quickstart.UI
 {
     /// <summary>
@@ -149,7 +149,7 @@ namespace IdentityServerHost.Quickstart.UI
 
                 // indicate that's it ok to redirect back to authorization endpoint
                 result.RedirectUri = model.ReturnUrl;
-                result.Client = request.Client;
+                result.Client = model.Client;
             }
             else
             {
@@ -186,26 +186,25 @@ namespace IdentityServerHost.Quickstart.UI
                 Description = model?.Description,
 
                 ReturnUrl = returnUrl,
-
-                ClientName = request.Client.ClientName ?? request.Client.ClientId,
-                ClientUrl = request.Client.ClientUri,
-                ClientLogoUrl = request.Client.LogoUri,
-                AllowRememberConsent = request.Client.AllowRememberConsent
+                ClientName  = model.ClientName,
+                ClientUrl = model.ClientUri,
+                ClientLogoUrl = model.LogoUri,
+                AllowRememberConsent = model.AllowRememberConsent
             };
 
-            vm.IdentityScopes = request.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
+            vm.IdentityScopes = model.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
 
             var apiScopes = new List<ScopeViewModel>();
-            foreach(var parsedScope in request.ValidatedResources.ParsedScopes)
+            foreach(var parsedScope in model.ValidatedResources.ParsedScopes.Scopes)
             {
-                var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
+                var apiScope = model.ValidatedResources.Resources.FindApiScope(parsedScope);
                 if (apiScope != null)
                 {
-                    var scopeVm = CreateScopeViewModel(parsedScope, apiScope, vm.ScopesConsented.Contains(parsedScope.RawValue) || model == null);
+                    var scopeVm = CreateScopeViewModel(model.ValidatedResources.ParsedScopes, apiScope, vm.ScopesConsented.Contains(model.ValidatedResources.ParsedScopes.RawValue) || model == null);
                     apiScopes.Add(scopeVm);
                 }
             }
-            if (ConsentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
+            if (ConsentOptions.EnableOfflineAccess && model.ValidatedResources.Resources.OfflineAccess)
             {
                 apiScopes.Add(GetOfflineAccessScope(vm.ScopesConsented.Contains(IdentityServer4.IdentityServerConstants.StandardScopes.OfflineAccess) || model == null));
             }
@@ -227,17 +226,17 @@ namespace IdentityServerHost.Quickstart.UI
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
+        public ScopeViewModel CreateScopeViewModel(ParsedScopes parsedScope, Scope apiScope, bool check)
         {
-            var displayName = apiScope.DisplayName ?? apiScope.Name;
-            if (!String.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter))
+            var displayName = apiScope.DisplayName;
+            if (!String.IsNullOrWhiteSpace(parsedScope.RawValue))
             {
-                displayName += ":" + parsedScopeValue.ParsedParameter;
+                displayName += ":" + parsedScope.RawValue;
             }
 
             return new ScopeViewModel
             {
-                Value = parsedScopeValue.RawValue,
+                Value = parsedScope.RawValue,
                 DisplayName = displayName,
                 Description = apiScope.Description,
                 Emphasize = apiScope.Emphasize,

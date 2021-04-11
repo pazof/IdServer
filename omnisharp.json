@@ -1,0 +1,8 @@
+{ 
+    "msbuild": { 
+        "useBundledOnly": false,
+        "Configuration": "Debug",
+        "CscToolPath": "/usr/bin",
+        "CscToolExe": "csc"
+    }
+}

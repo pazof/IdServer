@@ -23,7 +23,7 @@
                 "${workspaceFolder}/nuget-host.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
-                "/restore"
+                "--ignore-failed-sources"
             ],
             "problemMatcher": "$msCompile"
         },
