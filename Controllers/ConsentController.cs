@@ -15,7 +15,7 @@ using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System;
 using IdentityServer4.Models;
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     /// <summary>
     /// This controller processes the consent UI

@@ -45,7 +45,7 @@ namespace nuget_host.Controllers
 
         public IActionResult Test()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Your test page.";
 
             return Ok(ViewData);
         }

@@ -15,7 +15,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     [SecurityHeaders]
     [AllowAnonymous]

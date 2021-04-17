@@ -3,7 +3,7 @@
 
 
 
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     public class RedirectViewModel
     {

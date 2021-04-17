@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using nuget_host.OAuth;
 
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     [Authorize]
     [SecurityHeaders]

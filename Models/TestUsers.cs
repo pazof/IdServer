@@ -9,7 +9,7 @@ using System.Security.Claims;
 using IdentityServer4;
 using Newtonsoft.Json;
 
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     public class TestUsers
     {

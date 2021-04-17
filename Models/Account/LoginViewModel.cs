@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     public class LoginViewModel : LoginInputModel
     {

@@ -5,7 +5,7 @@
 using IdentityServer4.Models;
 using System.Collections.Generic;
 
-namespace IdentityServerHost.Quickstart.UI
+namespace nuget_host.Models
 {
     public class ValidatedResources
     {
