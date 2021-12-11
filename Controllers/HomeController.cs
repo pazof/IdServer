@@ -4,9 +4,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using nuget_host.Entities;
 using nuget_host.Models;
 
 namespace nuget_host.Controllers
@@ -15,13 +18,20 @@ namespace nuget_host.Controllers
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly ILogger _logger;
-        IHostingEnvironment _environment;
+        readonly IHostingEnvironment _environment;
+        public IDataProtector DataProtector { get; } 
+        public SmtpSettings Options { get; } //set only via Secret Manager
 
-        public HomeController(IIdentityServerInteractionService interaction, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, ILogger<HomeController> logger)
+        public HomeController(
+            IOptions<SmtpSettings> smtpSettings,
+            IDataProtectionProvider provider, 
+            IIdentityServerInteractionService interaction, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, ILogger<HomeController> logger)
         {
             _interaction = interaction;
             _environment = environment;
             _logger = logger;
+            Options = smtpSettings.Value;
+            DataProtector = provider.CreateProtector(Options.ProtectionTitle);
         }
         
         public IActionResult Index()

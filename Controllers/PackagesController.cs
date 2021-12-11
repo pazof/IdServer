@@ -13,8 +13,8 @@ namespace nuget_host.Controllers
 {
     public class PackagesController : Controller
     {
-        private ILogger<PackagesController> logger;
-        private IDataProtector protector;
+        private readonly ILogger<PackagesController> logger;
+        private readonly IDataProtector protector;
 
         public PackagesController(ILoggerFactory loggerFactory, IDataProtectionProvider provider)
         {
