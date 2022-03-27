@@ -1,7 +1,7 @@
 using System;
 using IdentityServer4.Models;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     public class ErrorViewModel
     {

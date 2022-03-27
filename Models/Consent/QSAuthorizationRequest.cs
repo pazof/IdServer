@@ -4,26 +4,25 @@
 
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using NuGet.Packaging;
 
-namespace nuget_host.OAuth
+namespace IdServer.OAuth
 {
     internal class NHAuthorizationRequest : AuthorizationRequest
     {
         internal NHAuthorizationRequest(ValidatedAuthorizeRequest request) : base()
         {
-            ClientId = request.ClientId;
+            Client = new Client { ClientId = request.ClientId };
             RedirectUri = request.RedirectUri;
             DisplayMode = request.DisplayMode;
             UiLocales = request.UiLocales;
             IdP = request.GetIdP();
             Tenant = request.GetTenant();
             LoginHint = request.LoginHint;
-            PromptMode = request.PromptMode;
+            DisplayMode = request.DisplayMode;
             AcrValues = request.GetAcrValues();
-            ScopesRequested = request.RequestedScopes;
+            foreach (var scope in  request.RequestedScopes)
+            RequestObjectValues.Add(scope, request.RequestObjectValues[scope]);
             Parameters.Add(request.Raw);
-            RequestObjectValues.AddRange(request.RequestObjectValues);
         }
 
     }

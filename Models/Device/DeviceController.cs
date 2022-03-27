@@ -17,9 +17,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using nuget_host.OAuth;
+using IdServer.OAuth;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     [Authorize]
     [SecurityHeaders]
@@ -90,10 +90,10 @@ namespace nuget_host.Models
             // user clicked 'no' - send back the standard 'access_denied' response
             if (model.Button == "no")
             {
-                grantedConsent = ConsentResponse.Denied;
+                grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied, Description = "Access Denied" };
 
                 // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested));
+                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, model.ScopesConsented));
             }
             // user clicked 'yes' - validate the data
             else if (model.Button == "yes")
@@ -110,11 +110,11 @@ namespace nuget_host.Models
                     grantedConsent = new ConsentResponse
                     {
                         RememberConsent = model.RememberConsent,
-                        ScopesConsented = scopes.ToArray()
+                        ScopesValuesConsented = scopes.ToArray()
                     };
 
                     // emit event
-                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
+                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, model.ScopesConsented, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
                 }
                 else
                 {
@@ -196,12 +196,12 @@ namespace nuget_host.Models
             return vm;
         }
 
-        private ValidatedAuthorizeRequest CreateValidatedRequest(DeviceFlowAuthorizationRequest request, Scope apiScope)
+        private ValidatedAuthorizeRequest CreateValidatedRequest(DeviceFlowAuthorizationRequest request, ApiScope apiScope)
         {
             throw new NotImplementedException();
         }
 
-        private ScopeViewModel CreateScopeViewModel(Scope scope, ValidatedAuthorizeRequest req)
+        private ScopeViewModel CreateScopeViewModel(ApiScope scope, ValidatedAuthorizeRequest req)
         {
             return new ScopeViewModel
             {
@@ -227,7 +227,7 @@ namespace nuget_host.Models
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(ParsedScopes parsedScopeValue, Scope apiScope, bool check)
+        public ScopeViewModel CreateScopeViewModel(ParsedScopes parsedScopeValue, ApiScope apiScope, bool check)
         {
             return new ScopeViewModel
             {

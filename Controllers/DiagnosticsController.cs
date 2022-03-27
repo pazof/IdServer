@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     [SecurityHeaders]
     [Authorize]

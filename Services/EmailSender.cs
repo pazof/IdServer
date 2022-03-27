@@ -9,15 +9,15 @@ using MailKit.Net.Smtp;
 using MimeKit;
 
 using System;
-using nuget_host.Interfaces;
-using nuget_host.Entities;
+using IdServer.Interfaces;
+using IdServer.Entities;
 
-namespace nuget_host.Services
+namespace IdServer.Services
 {
     public class EmailSender : IEmailSender, IMailer
     {
         public EmailSender(IOptions<SmtpSettings> smtpSettings,
-         Microsoft.AspNetCore.Hosting.IHostingEnvironment env,
+         IWebHostEnvironment env,
          IDataProtectionProvider provider)
         {
             Options = smtpSettings.Value;
@@ -26,17 +26,15 @@ namespace nuget_host.Services
         }
         public IDataProtector DataProtector { get; } 
         public SmtpSettings Options { get; } //set only via Secret Manager
-        public Microsoft.AspNetCore.Hosting.IHostingEnvironment Env { get; }
+        public IWebHostEnvironment Env { get; }
         public Task SendEmailAsync(string email, string subject, string message)
         {
             return Execute(Options.SenderName, subject, message, email);
         }
 
-        public async Task Execute(string apiKey, string subject, string message, string email)
+        public async Task Execute(string name, string subject, string message, string email)
         {
-            // TODO use apiKey
-            var clearTxt = DataProtector.Unprotect(apiKey);
-            await SendMailAsync(clearTxt, email, subject, message);
+            await SendMailAsync(name, email, subject, message);
         }
 
         public async Task SendMailAsync(string name, string email, string subjet, string body)

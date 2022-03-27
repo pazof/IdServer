@@ -3,7 +3,7 @@ using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 
-namespace nuget_host
+namespace IdServer
 {
     public static class Config
 {
@@ -17,10 +17,13 @@ namespace nuget_host
     public static IEnumerable<ApiResource> ApiResources =>
         new List<ApiResource>
         {
-            new ApiResource(scope_packages)
+            new ApiResource("api1")
         };
-
-    public const string scope_packages = "packages";
+    public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope>
+            {
+                new ApiScope("api1", "My API")
+            };
 
     public static IEnumerable<Client> Clients =>
         new List<Client>
@@ -33,7 +36,7 @@ namespace nuget_host
 
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 // scopes that client has access to
-                AllowedScopes = { scope_packages }
+                AllowedScopes = { "api1", "My API" }
             },
 
             // interactive ASP.NET Core MVC client
@@ -54,11 +57,9 @@ namespace nuget_host
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    scope_packages
+                    "api1"
                 }
             }
         };
-
-        public static List<TestUser> TestUsers { get; internal set; }
     }
 }

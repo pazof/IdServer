@@ -5,7 +5,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {

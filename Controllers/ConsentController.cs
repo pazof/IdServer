@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using IdentityServer4.Validation;
 using System.Collections.Generic;
 using System;
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     /// <summary>
     /// This controller processes the consent UI
@@ -105,10 +105,13 @@ namespace nuget_host.Models
             // user clicked 'no' - send back the standard 'access_denied' response
             if (model?.Button == "no")
             {
-                grantedConsent =  ConsentResponse.Denied;
+                grantedConsent = new ConsentResponse{
+                    Error = AuthorizationError.AccessDenied,
+                    Description = "access denied"
+                };
 
                 // emit event
-                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested));
+                await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.RequestObjectValues.Keys));
             }
             // user clicked 'yes' - validate the data
             else if (model?.Button == "yes")
@@ -125,11 +128,11 @@ namespace nuget_host.Models
                     grantedConsent = new ConsentResponse
                     {
                         RememberConsent = model.RememberConsent,
-                        ScopesConsented = scopes.ToArray()
+                        ScopesValuesConsented = scopes.ToArray()
                     };
 
                     // emit event
-                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.ClientId, request.ScopesRequested, grantedConsent.ScopesConsented, grantedConsent.RememberConsent));
+                    await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.RequestObjectValues.Keys, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
                 }
                 else
                 {
@@ -225,7 +228,7 @@ namespace nuget_host.Models
             };
         }
 
-        public ScopeViewModel CreateScopeViewModel(ParsedScopes parsedScope, Scope apiScope, bool check)
+        public ScopeViewModel CreateScopeViewModel(ParsedScopes parsedScope, ApiScope apiScope, bool check)
         {
             var displayName = apiScope.DisplayName;
             if (!String.IsNullOrWhiteSpace(parsedScope.RawValue))

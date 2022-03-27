@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     public class DiagnosticsViewModel
     {

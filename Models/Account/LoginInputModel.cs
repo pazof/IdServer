@@ -4,7 +4,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     public class LoginInputModel
     {

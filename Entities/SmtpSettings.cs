@@ -1,4 +1,4 @@
-namespace nuget_host.Entities
+namespace IdServer.Entities
 {
     public class SmtpSettings
     {

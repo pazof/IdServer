@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     /// <summary>
     /// This sample controller allows a user to revoke grants given to clients
@@ -61,7 +61,7 @@ namespace nuget_host.Models
 
         private async Task<GrantsViewModel> BuildViewModelAsync()
         {
-            var grants = await _interaction.GetAllUserConsentsAsync();
+            var grants = await _interaction.GetAllUserGrantsAsync();
 
             var list = new List<GrantViewModel>();
             foreach(var grant in grants)

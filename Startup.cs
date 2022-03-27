@@ -14,12 +14,14 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Hosting;
-using nuget_host.Data;
-using nuget_host.Interfaces;
-using nuget_host.Services;
-using nuget_host.Entities;
+using IdServer.Data;
+using IdServer.Interfaces;
+using IdServer.Services;
+using IdServer.Entities;
+using IdServer.Models;
+using System.Security.Claims;
 
-namespace nuget_host
+namespace IdServer
 {
     public class Startup
     {
@@ -30,12 +32,42 @@ namespace nuget_host
 
         public IConfiguration Configuration { get; }
         public static string ExternalUrl { get; private set; }
-        public static string SourceDir { get; private set; }
         public static string RootApiKeySecret { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDataProtection();
+
+            services.AddControllersWithViews();
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(
+                    Configuration.GetConnectionString("DefaultConnection")));
+
+            
+            services.AddIdentity<ApplicationUser, IdentityRole>(options => options.Stores.MaxLengthForKeys = 128)
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
+            var builder = services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+                options.EmitStaticAudienceClaim = true;
+            })
+            .AddInMemoryIdentityResources(Config.IdentityResources)
+                .AddInMemoryApiScopes(Config.ApiScopes)
+            .AddInMemoryClients(Config.Clients)
+                .AddInMemoryIdentityResources(Config.IdentityResources)
+            .AddInMemoryApiResources(Config.ApiResources)
+            .AddDeveloperSigningCredential()
+                .AddAspNetIdentity<ApplicationUser>();
+
+            // not recommended for production - you need to store your key material somewhere secure
+            builder.AddDeveloperSigningCredential();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -47,25 +79,6 @@ namespace nuget_host
 
             });
             
-
-            services.AddMvc();
-
-            services.AddDataProtection();
-
-            services.AddIdentityServer()
-            .AddInMemoryClients(Config.Clients)
-            .AddInMemoryIdentityResources(Config.IdentityResources)
-            .AddInMemoryApiResources(Config.ApiResources)
-            .AddDeveloperSigningCredential()
-            .AddTestUsers(Config.TestUsers);
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddIdentity<IdentityUser, IdentityRole>(options => options.Stores.MaxLengthForKeys = 128)
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultUI()
-            .AddDefaultTokenProviders();
             services.AddTransient<IMailer, EmailSender>();
             services.AddTransient<IEmailSender, EmailSender>();
 
@@ -75,7 +88,7 @@ namespace nuget_host
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -87,22 +100,22 @@ namespace nuget_host
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-            ExternalUrl = Configuration["NuGet:ExternalUrl"];
-            SourceDir = Configuration["NuGet:SourceDir"];
+            ExternalUrl = Configuration["ExternalUrl"];
             RootApiKeySecret = Configuration["RootApiKeySecret"];
 
             app.UseStaticFiles();
-
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseIdentityServer();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDefaultControllerRoute();
             });
+            
         }
     }
 }

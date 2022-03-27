@@ -2,7 +2,7 @@ using System;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace nuget_host.Models
+namespace IdServer.Models
 {
     public static class Extensions
     {

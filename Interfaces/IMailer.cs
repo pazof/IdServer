@@ -1,7 +1,7 @@
 
 using System.Threading.Tasks;
 
-namespace nuget_host.Interfaces
+namespace IdServer.Interfaces
 {
     public interface IMailer
     {

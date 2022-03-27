@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "restore",
-                "${workspaceFolder}/nuget-host.csproj",
+                "${workspaceFolder}/IdServer.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
                 "--ignore-failed-sources"
@@ -20,7 +20,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/nuget-host.csproj",
+                "${workspaceFolder}/IdServer.csproj",
                 "/p:Configuration=Debug",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
@@ -34,7 +34,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/nuget-host.csproj",
+                "${workspaceFolder}/IdServer.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -45,7 +45,7 @@
             "command": "dotnet",
             "type": "process",
             "args": [
-                "${workspaceFolder}/bin/Debug/netcoreapp2.0/nuget-host.dll"
+                "${workspaceFolder}/bin/Debug/netcoreapp3.1/IdServer.dll"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -54,7 +54,7 @@
             "command": "dotnet",
             "type": "process",
             "args": [
-                "bin/Debug/netcoreapp2.0/nuget-host.dll",
+                "bin/Debug/netcoreapp3.1/IdServer.dll",
                 "/property:GenerateFullPaths=true",
                 "/restore"
             ],
